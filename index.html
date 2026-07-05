@@ -1561,35 +1561,6 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
   <div class="stage-strip">Đây là khối giải mã UpblockAttention, phần bù cho slide PLAM. Ba bước: một, upsample đặc trưng tầng dưới lên gấp đôi. Hai, lọc skip-connection qua PLAM thành skip_x_att rồi concat với up theo chiều kênh. Ba, trộn qua hai khối Conv2d–BatchNorm–ReLU, giảm nửa số kênh. Lặp up4 xuống up1 để phục hồi độ phân giải từ 14×14 lên 224×224, cuối cùng Conv 1×1 và Sigmoid cho ra bản đồ xác suất [B, n_classes, 224, 224].</div>
 </section>
 
-<!-- ============ 22 · CROSS-ENTROPY (KaTeX) ============ -->
-<section class="slide split cream-bg" id="slide-22" data-title="Cross-Entropy &amp; dấu trừ" data-group="Loss" style="background-image:url('assets/bg-cream-3.png')">
-  <div class="wrap">
-    <div class="col-text">
-      <div class="slide-kicker">LOSS · CROSS-ENTROPY</div>
-      <h1>Dấu trừ trong cross-entropy = "độ ngạc nhiên".</h1>
-      <p class="lede"><span class="katex-inline" data-tex="-\log p">−log p</span> lớn khi mô hình gán xác suất thấp cho nhãn đúng — tức là "bất ngờ". Học tức là giảm sự bất ngờ đó.</p>
-      <div class="formula big" data-tex="\mathcal{L}_{\text{CE}} = -\sum_{i} y_i \log(\hat{y}_i)"></div>
-      <p class="fnote">Dấu <code>−</code> đổi log của xác suất (luôn âm) thành một đại lượng dương để tối thiểu hoá.</p>
-    </div>
-    <div class="col-visual">
-      <svg class="svg-fig" viewBox="0 0 480 300" role="img" aria-label="Đường loss giảm dần theo epoch, công thức cross-entropy">
-        <text class="s-mono o" x="240" y="34">L_CE = −Σ yᵢ log(ŷᵢ)</text>
-        <!-- axes -->
-        <line x1="70" y1="70" x2="70" y2="240" stroke="var(--light-gray)" stroke-width="1.5"/>
-        <line x1="70" y1="240" x2="430" y2="240" stroke="var(--light-gray)" stroke-width="1.5"/>
-        <!-- decreasing loss curve -->
-        <path d="M78,86 C150,110 180,200 250,218 S360,234 424,236" stroke="var(--orange)" stroke-width="2.5" fill="none"/>
-        <circle cx="250" cy="218" r="6" fill="var(--orange)"/>
-        <text class="s-cap" x="285" y="96">−log p ↑ khi sai</text>
-        <!-- axis labels -->
-        <text class="s-cap" x="250" y="262">epoch</text>
-        <text class="s-cap" x="40" y="155" transform="rotate(-90 40 155)">loss</text>
-      </svg>
-    </div>
-  </div>
-  <div class="stage-strip">Nói nhanh về cross-entropy để dẫn vào loss của LViT. Công thức là trừ tổng y_i nhân log y-mũ-i. Vì sao có dấu trừ? Vì log của xác suất luôn âm; dấu trừ biến nó thành số dương để mình tối thiểu hoá. Trực giác: trừ log p là "độ ngạc nhiên" — mô hình gán xác suất càng thấp cho nhãn đúng thì càng ngạc nhiên, loss càng lớn. Học chính là giảm dần sự ngạc nhiên đó.</div>
-</section>
-
 <!-- ============ 23 · CLASS IMBALANCE (Weighted Dice+BCE) ============ -->
 <section class="slide cream-bg" id="slide-23" data-title="Mất cân bằng lớp" data-group="Loss" style="background-image:url('assets/bg-cream-1.png')">
   <div class="wrap">

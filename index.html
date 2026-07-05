@@ -807,6 +807,11 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
 /* KaTeX formula block — a quiet cream card, orange left rule, mono-adjacent */
 .formula{ margin:16px 0 0; padding:14px 20px; background:oklch(94% 0.012 85); border:1px solid oklch(88% 0.012 85); border-left:3px solid var(--orange); border-radius:8px; overflow-x:auto }
 .formula.big{ font-size:1.15rem }
+/* numbered formula list — mỗi công thức 1 dòng, đánh số */
+.formula.num{ position:relative; padding-left:44px; margin:10px 0 0; font-size:1rem }
+.formula.num::before{ content:attr(data-n); position:absolute; left:12px; top:50%; transform:translateY(-50%); font-family:var(--font-head); font-weight:800; font-size:15px; color:#fff; background:var(--orange); width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center }
+.formula.num .katex{ font-size:1em }
+.formula.num .katex-display{ margin:0; text-align:left }
 .formula + .fnote{ font-family:var(--font-body); font-size:14px; color:var(--mid); margin-top:8px }
 .slide.dark .formula{ background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.12) }
 .katex{ color:var(--dark) }
@@ -1160,18 +1165,20 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
   <div class="wrap">
     <div class="col-text">
       <div class="slide-kicker">CÔNG THỨC · ViT BLOCK</div>
-      <h1>Bốn công thức gói gọn cách nhánh ViT hoạt động.</h1>
+      <h1>Năm công thức gói gọn cách nhánh ViT hoạt động.</h1>
       <p class="lede">Mỗi <span class="term">ViT block</span> = tự chú ý (MHSA) + residual, rồi MLP + residual. Text được cộng vào ngay từ đầu.</p>
-      <div class="formula big" data-tex="Y_{\text{DownViT},1} = \mathrm{ViT}\big(x_{\text{img},1} + \mathrm{CTBN}(x_{\text{text}})\big)"></div>
-      <div class="formula" data-tex="x' = \mathrm{ViT}_1(x) = \mathrm{MHSA}(\mathrm{LN}(x)) + x \qquad Y = \mathrm{ViT}_2(x') = \mathrm{MLP}(\mathrm{LN}(x')) + x'"></div>
-      <div class="formula" data-tex="Y_{\text{DownViT},i+1} = \mathrm{ViT}\big(Y_{\text{DownViT},i} + x_{\text{img},i+1}\big) \qquad x_{\text{img},i} = \mathrm{PatchEmbedding}(Y_{\text{DownCNN},i})"></div>
-      <p class="fnote">Dấu <code>+</code> được tô đậm: đây là <span class="term">early additive fusion</span> — text cộng thẳng vào ảnh.</p>
+      <div class="formula num" data-n="1" data-tex="Y_{\text{DownViT},1} = \mathrm{ViT}\big(x_{\text{img},1} + \mathrm{CTBN}(x_{\text{text}})\big)"></div>
+      <div class="formula num" data-n="2" data-tex="x_{\text{img},i} = \mathrm{PatchEmbedding}(Y_{\text{DownCNN},i})"></div>
+      <div class="formula num" data-n="3" data-tex="x' = \mathrm{ViT}_1(x) = \mathrm{MHSA}(\mathrm{LN}(x)) + x"></div>
+      <div class="formula num" data-n="4" data-tex="Y = \mathrm{ViT}_2(x') = \mathrm{MLP}(\mathrm{LN}(x')) + x'"></div>
+      <div class="formula num" data-n="5" data-tex="Y_{\text{DownViT},i+1} = \mathrm{ViT}\big(Y_{\text{DownViT},i} + x_{\text{img},i+1}\big)"></div>
+      <p class="fnote">Dấu <code>+</code> tô đậm: đây là <span class="term">early additive fusion</span> — text cộng thẳng vào ảnh.</p>
     </div>
     <div class="col-visual">
       <figure class="paper-figure"><img src="figs/fig2a_overview.png" alt="Fig 2a — kiến trúc LViT Double-U, đối chiếu với công thức ViT" /><figcaption>Fig. 2(a) — LViT Double-U (nhánh CNN + nhánh ViT)</figcaption></figure>
     </div>
   </div>
-  <div class="stage-strip">Bốn công thức mô tả nhánh ViT. Công thức đầu: đầu vào tầng ViT đầu tiên là ảnh cộng với text đã qua CTBN. Hai công thức giữa là chuẩn của một ViT block — MHSA cộng residual, rồi MLP cộng residual. Công thức cuối cho các tầng sau: đặc trưng ViT tầng trước cộng với patch-embedding của đặc trưng CNN. Điểm cần chú ý là dấu cộng — LViT trộn hai modality bằng phép cộng thô, chứ không phải cross-attention nặng nề.</div>
+  <div class="stage-strip">Năm công thức mô tả nhánh ViT, đọc theo thứ tự. (1) Đầu vào tầng ViT đầu tiên là ảnh cộng text đã qua CTBN. (2) Patch-embedding của đặc trưng CNN. (3) và (4) là chuẩn của một ViT block — MHSA cộng residual, rồi MLP cộng residual. (5) Các tầng sau: đặc trưng ViT tầng trước cộng với ảnh. Điểm chú ý là dấu cộng — LViT trộn hai modality bằng phép cộng thô, không phải cross-attention.</div>
 </section>
 
 <!-- ============ 10 · WHY CNNs NEED TRANSFORMERS (KaTeX) ============ -->

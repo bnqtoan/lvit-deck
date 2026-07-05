@@ -799,10 +799,11 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
 /* ===== LViT additions (on top of forked ref CSS) ===== */
 /* Real paper figures are true screenshots on white — never multiply-blend them (that trick is only for cream line-art). Give them a soft card so they read on the cream slide. */
 .paper-figure{ margin:0; background:#fff; border:1px solid var(--light-gray); border-radius:12px; padding:14px; box-shadow:0 22px 60px -34px rgba(20,20,19,.5) }
-.paper-figure img{ display:block; width:100%; height:auto; max-height:66vh; object-fit:contain; mix-blend-mode:normal; border-radius:6px }
+.paper-figure img{ display:block; width:100%; height:auto; max-height:78vh; object-fit:contain; mix-blend-mode:normal; border-radius:6px }
 .paper-figure figcaption{ font-family:var(--font-mono); font-size:11px; letter-spacing:.04em; color:oklch(45% 0.008 80); margin-top:10px; text-align:center; line-height:1.5 }
-.slide.split .col-visual .paper-figure{ width:100% }
-.slide.split .col-visual .paper-figure img{ max-height:72vh }
+.slide.split .col-visual{ min-height:0; max-height:86vh }
+.slide.split .col-visual .paper-figure{ width:100%; max-height:100%; display:flex; flex-direction:column }
+.slide.split .col-visual .paper-figure img{ max-height:80vh; width:auto; max-width:100%; margin:0 auto }
 /* KaTeX formula block — a quiet cream card, orange left rule, mono-adjacent */
 .formula{ margin:16px 0 0; padding:14px 20px; background:oklch(94% 0.012 85); border:1px solid oklch(88% 0.012 85); border-left:3px solid var(--orange); border-radius:8px; overflow-x:auto }
 .formula.big{ font-size:1.15rem }
@@ -1283,22 +1284,17 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
 </section>
 
 <!-- ============ 14 · ALIGNING MODALITIES AT 4 SCALES ============ -->
-<section class="slide split cream-bg" id="slide-14" data-title="Căn khớp modality ở 4 scale" data-group="Kiến trúc" style="background-image:url('assets/bg-cream-1.png')">
+<section class="slide cream-bg" id="slide-14" data-title="Căn khớp modality ở 4 scale" data-group="Kiến trúc" style="background-image:url('assets/bg-cream-1.png')">
   <div class="wrap">
-    <div class="col-text">
-      <div class="slide-kicker">CĂN KHỚP</div>
-      <h1>Căn khớp modality ở bốn scale: từ high-res edges tới deep semantics.</h1>
-      <div class="takeaway"><strong>Main Takeaway:</strong> Channel reduction giúp text được inject vào cả high-res edges lẫn deep semantic features của ảnh.</div>
-      <h2 style="margin:22px 0 10px">Key Points</h2>
-      <ul class="keypoints">
-        <li><strong>High-Res Alignment</strong> — Scale 1: ảnh high-res × text đã nén mạnh còn 64 channels, phục vụ cạnh chi tiết.</li>
-        <li><strong>Deep Semantic Alignment</strong> — Scale 4: ảnh low-res trừu tượng × text giàu ngữ nghĩa 512 channels.</li>
-        <li><strong>Perfect Fusion</strong> — cho phép Transformer cross-attention hoạt động mà không lệch tensor ở mọi điểm fusion.</li>
-      </ul>
-    </div>
-    <div class="col-visual">
-      <figure class="paper-figure" style="margin:0"><img src="figs/p15_img.png" alt="Bốn panel collision image × text: Scale 1 64×64 tới Scale 4 512×512" /></figure>
-    </div>
+    <div class="slide-kicker">CĂN KHỚP</div>
+    <h1>Căn khớp modality ở bốn scale: từ high-res edges tới deep semantics.</h1>
+    <div class="takeaway"><strong>Main Takeaway:</strong> Channel reduction giúp text được inject vào cả high-res edges lẫn deep semantic features của ảnh.</div>
+    <ul class="keypoints" style="grid-template-columns:1fr 1fr 1fr;display:grid;gap:12px">
+      <li><strong>High-Res Alignment</strong> — Scale 1: ảnh high-res × text nén còn 64 channels (cạnh chi tiết).</li>
+      <li><strong>Deep Semantic Alignment</strong> — Scale 4: ảnh low-res trừu tượng × text 512 channels.</li>
+      <li><strong>Perfect Fusion</strong> — Transformer cross-attention không lệch tensor ở mọi điểm fusion.</li>
+    </ul>
+    <figure class="paper-figure" style="margin:18px 0 0"><img src="figs/p15_img.png" alt="Bốn panel collision image × text: Scale 1 64×64 tới Scale 4 512×512" style="max-height:none" /></figure>
   </div>
   <div class="stage-strip">Việc nén text không tuỳ tiện — nó để căn khớp bốn scale ảnh. Scale 1: ảnh độ phân giải cao ghép với text nén xuống 64 kênh, phục vụ đặc trưng biên chi tiết. Scale 4: ảnh độ phân giải thấp, trừu tượng, ghép với text 512 kênh giàu ngữ nghĩa. Nhờ căn khớp dimensionality này mà Transformer fuse được hai modality mà không lệch tensor.</div>
 </section>

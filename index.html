@@ -1526,13 +1526,13 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
         <li><strong>Bước 2 · Bottleneck MLP</strong> — chấm điểm quan trọng cho mỗi pixel → <code>[B,1,H,W]</code>.</li>
         <li><strong>Bước 3 · Noise Suppression</strong> — nhân trọng số vào feature map gốc: <code>y = x_output * x</code>.</li>
       </ul>
-      <div class="takeaway">⚠️ <strong>Điểm ăn điểm — code ≠ hình:</strong> Figure vẽ <code>GAP/GMP</code> (gộp theo <em>không gian</em>). Nhưng CODE thực gộp theo <em>kênh</em> — <code>torch.mean/max(x, dim=1)</code> → tạo trọng số <strong>pixel-level thật sự</strong>, không phải channel-level như hình gợi ý.</div>
+      <div class="takeaway"><strong>Lưu ý — code khác hình:</strong> Figure vẽ <code>GAP/GMP</code> (gộp theo <em>không gian</em>). Nhưng CODE thực gộp theo <em>kênh</em> — <code>torch.mean/max(x, dim=1)</code> → tạo trọng số <strong>pixel-level thật sự</strong>, không phải channel-level như hình gợi ý.</div>
     </div>
     <div class="col-visual">
       <figure class="paper-figure" style="margin:0"><img src="figs/p23_img.png" alt="Code PixLevelModule khoanh đỏ kèm sơ đồ PLAM (Conv2D, ReLU, GAP/GMP, Concatenate, MLP)" /></figure>
     </div>
   </div>
-  <div class="stage-strip">PLAM là bộ lọc nhiễu ở skip-connection, cảm hứng từ CBAM, để bù phần cục bộ mà ViT bỏ sót. Ba bước: gộp đặc trưng, chấm điểm quan trọng cho từng pixel, rồi nhân trọng số ngược lại vào feature map — y bằng x_output nhân x. Đây là điểm ăn điểm khi thuyết trình: hình trong paper vẽ GAP và GMP, tức gộp theo không gian; nhưng đọc code thì torch.mean và torch.max chạy theo dim bằng 1, tức gộp theo kênh — cho ra trọng số cấp pixel thật sự. Code khác hình, mình nêu rõ chỗ này.</div>
+  <div class="stage-strip">PLAM là bộ lọc nhiễu ở skip-connection, cảm hứng từ CBAM, để bù phần cục bộ mà ViT bỏ sót. Ba bước: gộp đặc trưng, chấm điểm quan trọng cho từng pixel, rồi nhân trọng số ngược lại vào feature map — y bằng x_output nhân x. Một chi tiết đáng lưu ý: hình trong paper vẽ GAP và GMP (gộp theo không gian), nhưng đọc code thì torch.mean và torch.max chạy theo dim bằng 1 (gộp theo kênh) — cho ra trọng số cấp pixel thật sự. Đây là điểm code khác hình.</div>
 </section>
 
 <!-- ============ 21b · DECODER BLOCK (UpblockAttention) ============ -->

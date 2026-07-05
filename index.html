@@ -790,35 +790,32 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
   .deck{ height:auto; overflow:visible; scroll-snap-type:none }
   .slide{
     width:1280px; height:720px; min-height:0; box-sizing:border-box;
-    padding:48px 56px; overflow:hidden;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:44px 56px; overflow:hidden;
     page-break-after:always; break-after:page; page-break-inside:avoid;
     border-bottom:none;
   }
   .slide:last-child{ page-break-after:auto }
-  /* force ALL reveal elements fully visible — kill scroll-driven/observer animation, no blur, no transform */
+  /* force ALL reveal elements fully visible — kill scroll-driven/observer animation */
   .slide, .slide *, .slide > .wrap, .slide > .wrap > *{
     animation:none !important; transition:none !important;
     opacity:1 !important; transform:none !important; filter:none !important;
   }
   .progress,.sidebar,.nav-arrows,.kbd-hint,.grid-dialog,.slide-num{ display:none !important }
-  .paper-figure img{ max-height:520px }
-  .slide.split .col-visual .paper-figure img{ max-height:560px }
-  /* tighten vertical rhythm so content-heavy slides fit 720px */
-  .slide h1{ font-size:1.9rem !important; margin-bottom:12px }
-  .slide .lede{ font-size:1rem !important; margin-bottom:12px }
-  .slide h2{ font-size:1.15rem !important; margin:12px 0 8px !important }
-  .keypoints{ gap:8px !important; margin-top:10px !important }
-  .keypoints li{ font-size:.92rem !important; line-height:1.4 }
-  .takeaway{ margin-top:10px !important; padding:10px 14px !important; font-size:.9rem !important }
-  .formula.num{ margin:6px 0 0 !important }
-  .ladder3{ display:grid !important; grid-template-columns:repeat(3,1fr) !important; gap:10px !important; margin-top:8px !important }
-  .ladder3 .step{ min-height:0 !important; padding:9px 12px !important }
-  .ladder3 .step .name{ font-size:1rem !important; margin-top:4px }
-  .ladder3 .step .desc{ font-size:.78rem !important; margin-top:3px }
-  .ladder3 .step .num{ font-size:11px !important }
-  #slide-29 .lede{ margin-bottom:8px !important }
-  .fnote{ font-size:.8rem !important }
-  .slide > .wrap{ max-height:624px; }
+  /* RE-ASSERT multi-column grids so the mobile @media(max-width:880) can't collapse them at print width */
+  .slide.split .wrap{ display:grid !important; grid-template-columns:1fr 1fr !important; gap:44px !important; align-items:center !important }
+  .slide.split.figure-wide .wrap{ grid-template-columns:0.85fr 1.15fr !important }
+  .ladder3{ display:grid !important; grid-template-columns:repeat(3,1fr) !important; gap:14px !important }
+  .content-grid,.content-grid.wide{ display:grid !important; grid-template-columns:1fr 1fr !important }
+  .para-row{ display:grid !important; grid-template-columns:repeat(4,1fr) !important }
+  .stat-row{ display:grid !important; grid-template-columns:repeat(3,1fr) !important }
+  .stat-row.four{ grid-template-columns:repeat(4,1fr) !important }
+  .cmp-table{ font-size:.8rem !important }
+  /* images must fit inside the 720px slide height, never overflow */
+  .paper-figure img{ max-height:540px !important }
+  .slide.split .col-visual .paper-figure img{ max-height:560px !important }
+  .svg-fig{ max-height:400px !important }
+  .col-visual{ max-height:640px !important; overflow:hidden }
 }
 </style>
 <style>

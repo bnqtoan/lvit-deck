@@ -1156,15 +1156,20 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
 </section>
 
 <!-- ============ 9 · LViT FORMULAS (KaTeX) ============ -->
-<section class="slide cream-bg" id="slide-9" data-title="Bóc tách công thức LViT" data-group="Kiến trúc" style="background-image:url('assets/bg-cream-2.png')">
+<section class="slide split figure-wide cream-bg" id="slide-9" data-title="Bóc tách công thức LViT" data-group="Kiến trúc" style="background-image:url('assets/bg-cream-2.png')">
   <div class="wrap">
-    <div class="slide-kicker">CÔNG THỨC · ViT BLOCK</div>
-    <h1>Bốn công thức gói gọn cách nhánh ViT hoạt động.</h1>
-    <p class="lede">Mỗi <span class="term">ViT block</span> = tự chú ý (MHSA) + residual, rồi MLP + residual. Text được cộng vào ngay từ đầu.</p>
-    <div class="formula big" data-tex="Y_{\text{DownViT},1} = \mathrm{ViT}\big(x_{\text{img},1} + \mathrm{CTBN}(x_{\text{text}})\big)"></div>
-    <div class="formula" data-tex="x' = \mathrm{ViT}_1(x) = \mathrm{MHSA}(\mathrm{LN}(x)) + x \qquad Y = \mathrm{ViT}_2(x') = \mathrm{MLP}(\mathrm{LN}(x')) + x'"></div>
-    <div class="formula" data-tex="Y_{\text{DownViT},i+1} = \mathrm{ViT}\big(Y_{\text{DownViT},i} + x_{\text{img},i+1}\big) \qquad x_{\text{img},i} = \mathrm{PatchEmbedding}(Y_{\text{DownCNN},i})"></div>
-    <p class="fnote">Dấu <code>+</code> được tô đậm: đây là <span class="term">early additive fusion</span> — text cộng thẳng vào ảnh.</p>
+    <div class="col-text">
+      <div class="slide-kicker">CÔNG THỨC · ViT BLOCK</div>
+      <h1>Bốn công thức gói gọn cách nhánh ViT hoạt động.</h1>
+      <p class="lede">Mỗi <span class="term">ViT block</span> = tự chú ý (MHSA) + residual, rồi MLP + residual. Text được cộng vào ngay từ đầu.</p>
+      <div class="formula big" data-tex="Y_{\text{DownViT},1} = \mathrm{ViT}\big(x_{\text{img},1} + \mathrm{CTBN}(x_{\text{text}})\big)"></div>
+      <div class="formula" data-tex="x' = \mathrm{ViT}_1(x) = \mathrm{MHSA}(\mathrm{LN}(x)) + x \qquad Y = \mathrm{ViT}_2(x') = \mathrm{MLP}(\mathrm{LN}(x')) + x'"></div>
+      <div class="formula" data-tex="Y_{\text{DownViT},i+1} = \mathrm{ViT}\big(Y_{\text{DownViT},i} + x_{\text{img},i+1}\big) \qquad x_{\text{img},i} = \mathrm{PatchEmbedding}(Y_{\text{DownCNN},i})"></div>
+      <p class="fnote">Dấu <code>+</code> được tô đậm: đây là <span class="term">early additive fusion</span> — text cộng thẳng vào ảnh.</p>
+    </div>
+    <div class="col-visual">
+      <figure class="paper-figure"><img src="figs/fig2a_overview.png" alt="Fig 2a — kiến trúc LViT Double-U, đối chiếu với công thức ViT" /><figcaption>Fig. 2(a) — LViT Double-U (nhánh CNN + nhánh ViT)</figcaption></figure>
+    </div>
   </div>
   <div class="stage-strip">Bốn công thức mô tả nhánh ViT. Công thức đầu: đầu vào tầng ViT đầu tiên là ảnh cộng với text đã qua CTBN. Hai công thức giữa là chuẩn của một ViT block — MHSA cộng residual, rồi MLP cộng residual. Công thức cuối cho các tầng sau: đặc trưng ViT tầng trước cộng với patch-embedding của đặc trưng CNN. Điểm cần chú ý là dấu cộng — LViT trộn hai modality bằng phép cộng thô, chứ không phải cross-attention nặng nề.</div>
 </section>
@@ -1474,23 +1479,6 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
   <div class="stage-strip">Sau khi ViT xử lý ở dạng chuỗi 1D, ta phải chuyển nó về biểu diễn không gian 2D để nhánh CNN sử dụng. Module Reconstruct làm ba việc: reshape chuỗi thành feature map 2D, dùng 1x1 Conv căn số kênh cho khớp nhánh CNN, và upsample lên đúng độ phân giải như 28x28 hay 56x56. Đây là bước nghịch đảo của patch embedding, đưa token sequence trở lại grid không gian.</div>
 </section>
 
-<!-- ============ 20 · MERGING GLOBAL+LOCAL (fig2a + KaTeX) ============ -->
-<section class="slide split figure-wide cream-bg" id="slide-20" data-title="⭐ Gộp toàn cục + cục bộ" data-group="Fusion" style="background-image:url('assets/bg-cream-1.png')">
-  <div class="wrap">
-    <div class="col-text">
-      <div class="slide-kicker">⭐ SKIP CONNECTION</div>
-      <h1>Gộp global (ViT) với local (CNN) bằng <span class="u-orange">residual</span>.</h1>
-      <p class="lede">Skip-connection của LViT không chỉ concat đặc trưng CNN như U-Net thường (dễ nhiễu ở tầng nông) — nó cộng thêm đặc trưng ViT đã reconstruct.</p>
-      <div class="formula big" data-tex="x_i = \mathrm{Reconstruct}(y_i) + x_i"></div>
-      <p class="fnote">Trong code: <code>x1 = reconstruct1(y1) + x1</code> (×4 tầng) — hợp nhất hiểu-biết-toàn-cục của ViT với ranh-giới-cục-bộ của CNN.</p>
-    </div>
-    <div class="col-visual">
-      <figure class="paper-figure"><img src="figs/fig2a_overview.png" alt="Fig 2a — skip connection reconstruct(y)+x" /><figcaption>Fig. 2(a) — skip connection đa modality: Reconstruct(yᵢ) + xᵢ</figcaption></figure>
-    </div>
-  </div>
-  <div class="stage-strip">Đây là điểm cốt lõi thứ hai — cách hợp nhất đặc trưng toàn cục và cục bộ. U-Net thường chỉ concat đặc trưng CNN qua skip-connection, nên các tầng nông dễ lẫn nhiễu nền. LViT thay bằng residual: x_i bằng Reconstruct của y_i cộng x_i — tức cộng đặc trưng ViT toàn cục vào đặc trưng CNN cục bộ, lặp cho cả bốn tầng. Nhờ đó ngữ cảnh toàn cục của ViT dẫn hướng cho việc xác định biên cục bộ ở nhánh CNN.</div>
-</section>
-
 <!-- ============ 20b · SKIP CONNECTION (khớp 100% PDF p-22) ============ -->
 <section class="slide split figure-wide cream-bg" id="slide-skip" data-title="Skip Connection: From U-Net to LViT" data-group="Fusion" style="background-image:url('assets/bg-cream-2.png')">
   <div class="wrap">
@@ -1561,25 +1549,6 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
   <div class="stage-strip">Đây là khối giải mã UpblockAttention, phần bù cho slide PLAM. Ba bước: một, upsample đặc trưng tầng dưới lên gấp đôi. Hai, lọc skip-connection qua PLAM thành skip_x_att rồi concat với up theo chiều kênh. Ba, trộn qua hai khối Conv2d–BatchNorm–ReLU, giảm nửa số kênh. Lặp up4 xuống up1 để phục hồi độ phân giải từ 14×14 lên 224×224, cuối cùng Conv 1×1 và Sigmoid cho ra bản đồ xác suất [B, n_classes, 224, 224].</div>
 </section>
 
-<!-- ============ 23 · CLASS IMBALANCE (Weighted Dice+BCE) ============ -->
-<section class="slide cream-bg" id="slide-23" data-title="Mất cân bằng lớp" data-group="Loss" style="background-image:url('assets/bg-cream-1.png')">
-  <div class="wrap">
-    <div class="slide-kicker">LOSS · CLASS IMBALANCE</div>
-    <h1>The Loss: chống mất cân bằng Foreground / Background.</h1>
-    <h2 style="margin:18px 0 8px">The Reality of Medical Images</h2>
-    <ul class="keypoints">
-      <li><strong>Lesion (Foreground-1)</strong> — chỉ chiếm 1%–5% tổng số pixel.</li>
-      <li><strong>Healthy tissue (Background-0)</strong> — chiếm 95%–99% tổng số pixel.</li>
-    </ul>
-    <h2 style="margin:20px 0 8px">The Unique Combination in Code</h2>
-    <ul class="keypoints">
-      <li><strong>Weighted BCE</strong> — phạt nặng khi nhầm pixel lesion → ranh giới sắc, pixel-precise.</li>
-      <li><strong>Weighted Dice</strong> — đo overlap <span class="katex-inline" data-tex="\frac{2\cdot|A\cap B|}{|A|+|B|}">2·Intersection/Union</span> → bắt shape toàn cục, miễn nhiễm với vùng nền lớn.</li>
-    </ul>
-    <div class="formula big" data-tex="\mathcal{L}_{\text{total}} = 0.5\cdot\mathcal{L}_{\text{Dice}} + 0.5\cdot\mathcal{L}_{\text{CE}}"></div>
-  </div>
-  <div class="stage-strip">Vấn đề đặc thù ảnh y tế: tổn thương chỉ chiếm 1 đến 5 phần trăm pixel, còn lại 95-99% là nền. Nếu dùng loss thường mô hình chỉ cần đoán "tất cả là nền" đã đúng 95%. Nên LViT dùng tổ hợp: Weighted BCE phạt nặng khi nhầm pixel tổn thương, cho ranh giới sắc; Weighted Dice đo tỉ lệ overlap hai lần giao chia tổng, gần như miễn nhiễm với vùng nền khổng lồ. Tổng loss là 0.5 Dice cộng 0.5 CE.</div>
-</section>
 
 <!-- ============ 24 · EPI (fig3) ============ -->
 <section class="slide split figure-wide cream-bg" id="slide-24" data-title="EPI — pseudo-label bằng EMA" data-group="Semi-supervised" style="background-image:url('assets/bg-cream-2.png')">
@@ -1674,18 +1643,14 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
 </section>
 
 <!-- ============ 28 · QUALITATIVE (fig4) ============ -->
-<section class="slide split figure-wide cream-bg" id="slide-28" data-title="Kết quả định tính" data-group="Kết quả" style="background-image:url('assets/bg-cream-3.png')">
+<section class="slide cream-bg" id="slide-28" data-title="Kết quả định tính" data-group="Kết quả" style="background-image:url('assets/bg-cream-3.png')">
   <div class="wrap">
-    <div class="col-text">
-      <div class="slide-kicker">KẾT QUẢ · ĐỊNH TÍNH</div>
-      <h1>Mắt thường cũng thấy: LViT ít "đốm nhiễu" hơn hẳn.</h1>
-      <p class="lede">So với U-Net, mask của LViT-T sạch hơn, bám sát ground truth — giảm rõ các <span class="term">artifact</span> rải rác. Tín hiệu text đóng vai trò prior ngữ nghĩa, giúp loại các dự đoán dương tính giả ngoài vùng giải phẫu hợp lý.</p>
-    </div>
-    <div class="col-visual">
-      <figure class="paper-figure"><img src="figs/fig4_qualitative.png" alt="Fig 4 — so sánh định tính Ground Truth / U-Net / LViT" /><figcaption>Fig. 4 — Ground Truth · U-Net · LViT-T (giảm artifact)</figcaption></figure>
-    </div>
+    <div class="slide-kicker">KẾT QUẢ · ĐỊNH TÍNH</div>
+    <h1>Mắt thường cũng thấy: LViT-T ít mis-segmentation hơn các SOTA.</h1>
+    <p class="lede">So sánh trực quan trên QaTa-COV19 &amp; MosMedData+ với 6 baseline (UNet++, nnUNet, UCTransNet, TGANet, GLoRIA). Trong các ô đỏ, mask của LViT-T sạch và bám ground truth hơn — tín hiệu text làm prior ngữ nghĩa, giảm dương tính giả ngoài vùng giải phẫu hợp lý.</p>
+    <figure class="paper-figure" style="margin:16px 0 0"><img src="figs/fig4_qualitative.png" alt="Fig 4 — Raw / Ground truth / UNet++ / nnUNet / UCTransNet / TGANet / GLoRIA / LViT-T" style="max-height:none" /><figcaption>Fig. 4 — Raw · Ground truth · UNet++ · nnUNet · UCTransNet · TGANet · GLoRIA · LViT-T (ô đỏ: vùng LViT-T chính xác hơn)</figcaption></figure>
   </div>
-  <div class="stage-strip">Ngoài số liệu, kết quả định tính cũng thuyết phục — Figure 4. So ba cột: Ground Truth, U-Net, và LViT-T. Mask của U-Net rải rác nhiều artifact ngoài vùng tổn thương; LViT-T thì sạch, bám sát ground truth. Cơ chế: tín hiệu text hoạt động như một prior ngữ nghĩa, ràng buộc dự đoán vào vùng giải phẫu hợp lý nên giảm dương tính giả.</div>
+  <div class="stage-strip">Ngoài số liệu, kết quả định tính cũng thuyết phục — Figure 4. Từ trái sang: ảnh gốc, ground truth, rồi lần lượt UNet++, nnUNet, UCTransNet, TGANet, GLoRIA, và LViT-T. Nhìn các ô đỏ: các baseline mis-segment nhiều hơn — chỗ thừa chỗ thiếu; LViT-T bám ground truth sát nhất. Cơ chế: tín hiệu text hoạt động như prior ngữ nghĩa, ràng buộc dự đoán vào vùng giải phẫu hợp lý nên giảm dương tính giả.</div>
 </section>
 
 <!-- ============ 29 · ABLATION ============ -->

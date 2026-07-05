@@ -1220,73 +1220,84 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
 </section>
 
 <!-- ============ 11 · CNN ENCODER-DECODER ============ -->
-<section class="slide cream-bg" id="slide-11" data-title="Nhánh CNN Encoder–Decoder" data-group="Kiến trúc" style="background-image:url('assets/bg-cream-1.png')">
+<section class="slide split cream-bg" id="slide-11" data-title="Nhánh CNN Encoder–Decoder" data-group="Kiến trúc" style="background-image:url('assets/bg-cream-1.png')">
   <div class="wrap">
-    <div class="slide-kicker">NHÁNH CNN</div>
-    <h1>Nhánh CNN: nhận ảnh thô, xuất segmentation mask cuối cùng.</h1>
-    <p class="lede">Đường đi xuống thu nhỏ không gian, tăng độ sâu đặc trưng. Đường đi lên upsample + concat để dựng lại bản đồ độ phân giải cao, từng tầng một.</p>
-    <ul class="keypoints">
-      <li><strong>Nguồn &amp; đích</strong> — nhận CT/X-quang thô, xuất mask pixel dự đoán.</li>
-      <li><strong>Downward path</strong> — <code>DownCNN ×4</code> → Bottleneck.</li>
-      <li><strong>Upward reconstruction</strong> — <code>UpCNN ×4</code> với skip-connection.</li>
-    </ul>
+    <div class="col-text">
+      <div class="slide-kicker">NHÁNH CNN</div>
+      <h1>Nhánh CNN: bộ nhận ảnh thô chính và engine vẽ mask cuối cùng.</h1>
+      <div class="takeaway"><strong>Main Takeaway:</strong> Nhánh CNN là bộ tiếp nhận ảnh thô chính của toàn hệ thống, đồng thời là engine tạo ra segmentation mask ở đầu ra.</div>
+      <h2 style="margin:22px 0 10px">Key Points</h2>
+      <ul class="keypoints">
+        <li><strong>Source &amp; Destination</strong> — nhận CT/X-quang thô ở đầu vào, xuất pixel mask dự đoán ở đầu ra.</li>
+        <li><strong>Downward Path</strong> — <code>DownCNN ×4</code> → Bottleneck: thu nhỏ kích thước không gian, tăng độ sâu đặc trưng.</li>
+        <li><strong>Upward Reconstruction</strong> — <code>UpCNN ×4</code>: upsample kèm concat skip-connection để dựng lại bản đồ độ phân giải cao từng tầng một.</li>
+      </ul>
+    </div>
+    <div class="col-visual">
+      <figure class="paper-figure" style="margin:0"><img src="figs/p12_img.png" alt="Sơ đồ U-Net: X-quang → DownCNN ×4 → Bottleneck → UpCNN ×4 → mask, với skip-connection ngang từng tầng" /></figure>
+    </div>
   </div>
   <div class="stage-strip">Nhánh CNN là khung U-Net encoder–decoder. Nó nhận ảnh thô và chịu trách nhiệm xuất mask cuối. Đường đi xuống — DownCNN bốn lần tới Bottleneck — giảm độ phân giải không gian, tăng độ sâu kênh. Đường đi lên — UpCNN bốn lần — upsample và ghép skip-connection để dựng lại độ phân giải cao. CNN là nhánh tạo dự đoán cuối, sau khi đã nhận đặc trưng toàn cục do nhánh ViT bổ trợ.</div>
 </section>
 
 <!-- ============ 12 · CNN DOWNBLOCK ============ -->
-<section class="slide cream-bg" id="slide-12" data-title="Bên trong CNN DownBlock" data-group="Kiến trúc" style="background-image:url('assets/bg-cream-2.png')">
+<section class="slide split cream-bg" id="slide-12" data-title="Bên trong CNN DownBlock" data-group="Kiến trúc" style="background-image:url('assets/bg-cream-2.png')">
   <div class="wrap">
-    <div class="slide-kicker">DOWNBLOCK</div>
-    <h1>Mỗi DownBlock: <code>Conv2d → BatchNorm → ReLU</code>, rồi <code>MaxPool</code>.</h1>
-    <p class="lede">Qua mỗi tầng, độ phân giải không gian giảm một nửa còn số kênh đặc trưng tăng gấp đôi — nén thông tin không gian thành biểu diễn đặc trưng ngày càng trừu tượng.</p>
-    <div class="flow-row">
-      <div class="flow-chip">224²×64<small>ảnh vào</small></div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-chip">112²×128</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-chip">56²×256</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-chip hot">độ sâu ×2 mỗi tầng<small>MaxPool giảm ½ không gian</small></div>
+    <div class="col-text">
+      <div class="slide-kicker">DOWNBLOCK</div>
+      <h1>Bên trong CNN DownBlock: <code>ConvBatchNorm + MaxPool</code> tuần tự.</h1>
+      <div class="takeaway"><strong>Main Takeaway:</strong> Dữ liệu thị giác được cô đặc và chuẩn hoá dần bằng chuỗi <code>ConvBatchNorm + MaxPool</code> lặp lại qua từng tầng.</div>
+      <h2 style="margin:22px 0 10px">Key Points</h2>
+      <ul class="keypoints">
+        <li><strong>Standardized Operations</strong> — mỗi block chạy chuẩn hoá <code>Conv2d → BatchNorm → ReLU</code>.</li>
+        <li><strong>Deepening Features</strong> — số kênh nhân đôi qua từng tầng: <code>64 → 128 → 256</code>.</li>
+        <li><strong>Spatial Downsampling</strong> — <code>MaxPool</code> giảm nửa kích thước không gian, lọc nhiễu và giữ lại hình học lõi.</li>
+      </ul>
     </div>
-    <p class="fnote" style="margin-top:16px">Channel depth: <code>64 → 128 → 256</code> · MaxPool giảm một nửa chiều không gian để lọc nhiễu, giữ hình học lõi.</p>
+    <div class="col-visual">
+      <figure class="paper-figure" style="margin:0"><img src="figs/p13_img.png" alt="Cube stack 224²×64 → 112²×128 → 56²×256 kèm code DownBlock (Conv2d, BatchNorm, ReLU, MaxPool)" /></figure>
+    </div>
   </div>
   <div class="stage-strip">Đi sâu vào một DownBlock ở mức code. Mỗi block dùng chuỗi Conv2d → BatchNorm → ReLU rồi MaxPool. Độ phân giải không gian giảm một nửa mỗi tầng — 224 xuống 112 xuống 56 — trong khi số kênh tăng gấp đôi: 64, 128, 256. Đây là đánh đổi kinh điển của encoder: giảm chiều không gian để tăng độ sâu và mức trừu tượng của biểu diễn đặc trưng.</div>
 </section>
 
 <!-- ============ 13 · SCALING TEXT VIA Conv1d ============ -->
-<section class="slide cream-bg" id="slide-13" data-title="Nén text bằng Conv1d" data-group="Kiến trúc" style="background-image:url('assets/bg-cream-3.png')">
+<section class="slide split cream-bg" id="slide-13" data-title="Nén text bằng Conv1d" data-group="Kiến trúc" style="background-image:url('assets/bg-cream-3.png')">
   <div class="wrap">
-    <div class="slide-kicker">TEXT MODULE</div>
-    <h1>Bốn lớp <code>Conv1d</code> nén dần vector BERT 768 chiều xuống khớp bốn scale ảnh.</h1>
-    <p class="lede">BERT xuất vector 768 chiều — quá lớn để trộn thẳng với kênh ảnh giai đoạn đầu. Text đi tuần tự từ <code>text_module4</code> xuống <code>text_module1</code>, giảm dần độ sâu ngôn ngữ.</p>
-    <div class="flow-row">
-      <div class="flow-chip hot">768<small>BERT</small></div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-chip">512</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-chip">256</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-chip">128</div>
-      <div class="flow-arrow">→</div>
-      <div class="flow-chip">64</div>
+    <div class="col-text">
+      <div class="slide-kicker">TEXT MODULE</div>
+      <h1>Nén text bằng bốn lớp <code>Conv1d</code> để khớp bốn visual scale.</h1>
+      <div class="takeaway"><strong>Main Takeaway:</strong> Bốn lớp <code>Conv1d</code> nén dần embedding BERT 768 chiều để khớp với bốn scale ảnh trong nhánh visual.</div>
+      <h2 style="margin:22px 0 10px">Key Points</h2>
+      <ul class="keypoints">
+        <li><strong>The Dimensionality Problem</strong> — BERT xuất vector 768-dim, quá lớn để merge trực tiếp vào kênh ảnh.</li>
+        <li><strong>The Conv1d Solution</strong> — text đi tuần tự từ <code>text_module4</code> xuống <code>text_module1</code>.</li>
+        <li><strong>Progressive Compression</strong> — <code>768 → 512 → 256 → 128 → 64</code>, đưa biểu diễn text về đúng số kênh của từng scale ảnh.</li>
+      </ul>
     </div>
-    <p class="fnote" style="margin-top:16px"><code>nn.Conv1d(768,512,k=3)</code> → <code>(512,256)</code> → <code>(256,128)</code> → <code>(128,64)</code>. Việc nén dần đưa biểu diễn text về đúng số chiều kênh của từng scale ảnh, tránh chênh lệch dimensionality khi fusion.</p>
+    <div class="col-visual">
+      <figure class="paper-figure" style="margin:0"><img src="figs/p14_img.png" alt="Cầu thang cube màu cam 768 → 512 → 256 → 128 → 64 kèm các module nn.Conv1d" /></figure>
+    </div>
   </div>
   <div class="stage-strip">BERT xuất vector text 768 chiều — quá lớn để trộn thẳng vào đặc trưng ảnh ở giai đoạn đầu. Nên có bốn lớp Conv1d nén dần: 768 xuống 512, 256, 128, rồi 64. Mỗi mức tương ứng số kênh của một scale trong nhánh ảnh. Việc căn khớp dimensionality này là điều kiện cần để phép cộng fusion ở các tầng hợp lệ về mặt tensor.</div>
 </section>
 
 <!-- ============ 14 · ALIGNING MODALITIES AT 4 SCALES ============ -->
-<section class="slide cream-bg" id="slide-14" data-title="Căn khớp modality ở 4 scale" data-group="Kiến trúc" style="background-image:url('assets/bg-cream-1.png')">
+<section class="slide split cream-bg" id="slide-14" data-title="Căn khớp modality ở 4 scale" data-group="Kiến trúc" style="background-image:url('assets/bg-cream-1.png')">
   <div class="wrap">
-    <div class="slide-kicker">CĂN KHỚP</div>
-    <h1>Ghép ngôn ngữ vào cả cạnh chi tiết lẫn đặc trưng ngữ nghĩa sâu.</h1>
-    <p class="lede">Text được ghép vào đặc trưng ảnh ở cả bốn scale. Conv1d căn khớp số kênh của text với từng scale ảnh, đảm bảo tính tương thích dimensionality tại mọi điểm fusion.</p>
-    <div class="para-row">
-      <div class="para-box"><div class="pb-k">Scale 1</div><div class="pb-d">Ảnh high-res × Text 64ch — cạnh chi tiết.</div></div>
-      <div class="para-box"><div class="pb-k">Scale 2</div><div class="pb-d">128 × 128 channel.</div></div>
-      <div class="para-box"><div class="pb-k">Scale 3</div><div class="pb-d">256 × 256 channel.</div></div>
-      <div class="para-box hot"><div class="pb-k">Scale 4</div><div class="pb-d">Ảnh low-res trừu tượng × Text 512ch — ngữ nghĩa sâu.</div></div>
+    <div class="col-text">
+      <div class="slide-kicker">CĂN KHỚP</div>
+      <h1>Căn khớp modality ở bốn scale: từ high-res edges tới deep semantics.</h1>
+      <div class="takeaway"><strong>Main Takeaway:</strong> Channel reduction giúp text được inject vào cả high-res edges lẫn deep semantic features của ảnh.</div>
+      <h2 style="margin:22px 0 10px">Key Points</h2>
+      <ul class="keypoints">
+        <li><strong>High-Res Alignment</strong> — Scale 1: ảnh high-res × text đã nén mạnh còn 64 channels, phục vụ cạnh chi tiết.</li>
+        <li><strong>Deep Semantic Alignment</strong> — Scale 4: ảnh low-res trừu tượng × text giàu ngữ nghĩa 512 channels.</li>
+        <li><strong>Perfect Fusion</strong> — cho phép Transformer cross-attention hoạt động mà không lệch tensor ở mọi điểm fusion.</li>
+      </ul>
+    </div>
+    <div class="col-visual">
+      <figure class="paper-figure" style="margin:0"><img src="figs/p15_img.png" alt="Bốn panel collision image × text: Scale 1 64×64 tới Scale 4 512×512" /></figure>
     </div>
   </div>
   <div class="stage-strip">Việc nén text không tuỳ tiện — nó để căn khớp bốn scale ảnh. Scale 1: ảnh độ phân giải cao ghép với text nén xuống 64 kênh, phục vụ đặc trưng biên chi tiết. Scale 4: ảnh độ phân giải thấp, trừu tượng, ghép với text 512 kênh giàu ngữ nghĩa. Nhờ căn khớp dimensionality này mà Transformer fuse được hai modality mà không lệch tensor.</div>
@@ -1484,18 +1495,50 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
   <div class="stage-strip">Đây là điểm cốt lõi thứ hai — cách hợp nhất đặc trưng toàn cục và cục bộ. U-Net thường chỉ concat đặc trưng CNN qua skip-connection, nên các tầng nông dễ lẫn nhiễu nền. LViT thay bằng residual: x_i bằng Reconstruct của y_i cộng x_i — tức cộng đặc trưng ViT toàn cục vào đặc trưng CNN cục bộ, lặp cho cả bốn tầng. Nhờ đó ngữ cảnh toàn cục của ViT dẫn hướng cho việc xác định biên cục bộ ở nhánh CNN.</div>
 </section>
 
+<!-- ============ 20b · SKIP CONNECTION (khớp 100% PDF p-22) ============ -->
+<section class="slide split figure-wide cream-bg" id="slide-skip" data-title="Skip Connection: From U-Net to LViT" data-group="Fusion" style="background-image:url('assets/bg-cream-2.png')">
+  <div class="wrap">
+    <div class="col-text">
+      <div class="slide-kicker">SKIP CONNECTION</div>
+      <h1>Skip Connection: From U-Net to LViT</h1>
+      <div class="takeaway" style="background:oklch(72% 0.05 175 / .18);border-left-color:oklch(55% 0.06 190)">
+        <strong>Đột phá tại Skip Connection: Multimodal Skip Connection Fusion</strong><br>
+        <code style="font-size:1.05em">Skip_Connection = Reconstruct(y_i) + x_i</code>
+      </div>
+      <h2 style="margin:22px 0 10px">Key Points</h2>
+      <ul class="keypoints">
+        <li><strong>U-Net truyền thống</strong> — chỉ concat trực tiếp đặc trưng CNN cục bộ (<code>x_i</code>) → dư thừa nhiễu nền ở các tầng nông.</li>
+        <li>Chi tiết không gian cục bộ (<span class="term">CNN Encoder</span> — <code>x_i</code>)</li>
+        <li>Ngữ cảnh toàn cục (<span class="term">Transformer</span> — <code>y_i</code>)</li>
+        <li>Dẫn hướng ngữ nghĩa ngôn ngữ (<span class="term">Text</span> — <code>text_i</code>)</li>
+      </ul>
+    </div>
+    <div class="col-visual" style="flex-direction:column;gap:14px">
+      <figure class="paper-figure" style="margin:0"><img src="figs/p22_fig2.png" alt="Figure 2: kiến trúc LViT (a) tổng quan + (b) PLAM" /></figure>
+      <figure class="paper-figure" style="margin:0"><img src="figs/p22_code.png" alt="Code forward(): 4 dòng reconstruct(y)+x khoanh đỏ" /></figure>
+    </div>
+  </div>
+  <div class="stage-strip">Slide này nêu đột phá của LViT tại skip-connection. Công thức: Skip_Connection bằng Reconstruct(y_i) cộng x_i. U-Net truyền thống chỉ concat trực tiếp đặc trưng CNN cục bộ x_i, nên các tầng nông dư thừa nhiễu nền. LViT hợp nhất ba nguồn tại skip: chi tiết không gian cục bộ từ CNN Encoder (x_i), ngữ cảnh toàn cục từ Transformer (y_i), và dẫn hướng ngữ nghĩa từ Text (text_i). Trong code forward(), bốn dòng x1..x4 = reconstruct(y)+x (khoanh đỏ) chính là phép hợp nhất này.</div>
+</section>
+
 <!-- ============ 21 · PLAM (fig2b) — code≠figure ============ -->
 <section class="slide split figure-wide cream-bg" id="slide-21" data-title="PLAM — code khác hình" data-group="Fusion" style="background-image:url('assets/bg-cream-2.png')">
   <div class="wrap">
     <div class="col-text">
       <div class="slide-kicker">PLAM · PIXEL-LEVEL ATTENTION</div>
-      <h1>PLAM: bộ lọc nhiễu nền ở skip-connection.</h1>
-      <p class="lede">Bù đặc trưng cục bộ mà ViT bỏ sót, lấy cảm hứng từ <span class="term">CBAM</span>. Pipeline 3 bước: gộp → chấm điểm quan trọng → nhân trở lại.</p>
+      <h1>PLAM: bộ lọc nhiễu thông minh tại Skip Connection.</h1>
+      <div class="takeaway" style="background:oklch(72% 0.05 175 / .18);border-left-color:oklch(55% 0.06 190)"><strong>Pixel-Level Attention Module (PLAM):</strong> Bộ lọc nhiễu thông minh tại Skip Connection — bù đặc trưng cục bộ mà <span class="term">ViT</span> bỏ sót, kết hợp <span class="term">GAP</span> + <span class="term">GMP</span> lấy cảm hứng từ <span class="term">CBAM</span>.</div>
       <div class="formula" data-tex="y = x_{\text{output}} \odot x"></div>
+      <h2 style="margin:18px 0 8px">Key Points — pipeline 3 bước trong code</h2>
+      <ul class="keypoints">
+        <li><strong>Bước 1 · Channel Aggregation</strong> — <code>conv_avg</code> (mean) + <code>conv_max</code> (max) → concat thành tensor 3 kênh <code>[B,3,H,W]</code>.</li>
+        <li><strong>Bước 2 · Bottleneck MLP</strong> — chấm điểm quan trọng cho mỗi pixel → <code>[B,1,H,W]</code>.</li>
+        <li><strong>Bước 3 · Noise Suppression</strong> — nhân trọng số vào feature map gốc: <code>y = x_output * x</code>.</li>
+      </ul>
       <div class="takeaway">⚠️ <strong>Điểm ăn điểm — code ≠ hình:</strong> Figure vẽ <code>GAP/GMP</code> (gộp theo <em>không gian</em>). Nhưng CODE thực gộp theo <em>kênh</em> — <code>torch.mean/max(x, dim=1)</code> → tạo trọng số <strong>pixel-level thật sự</strong>, không phải channel-level như hình gợi ý.</div>
     </div>
     <div class="col-visual">
-      <figure class="paper-figure"><img src="figs/fig2b_plam.png" alt="Fig 2b — sơ đồ PLAM" /><figcaption>Fig. 2(b) — PLAM (hình vẽ GAP/GMP; code lại gộp theo channel dim=1)</figcaption></figure>
+      <figure class="paper-figure" style="margin:0"><img src="figs/p23_img.png" alt="Code PixLevelModule khoanh đỏ kèm sơ đồ PLAM (Conv2D, ReLU, GAP/GMP, Concatenate, MLP)" /></figure>
     </div>
   </div>
   <div class="stage-strip">PLAM là bộ lọc nhiễu ở skip-connection, cảm hứng từ CBAM, để bù phần cục bộ mà ViT bỏ sót. Ba bước: gộp đặc trưng, chấm điểm quan trọng cho từng pixel, rồi nhân trọng số ngược lại vào feature map — y bằng x_output nhân x. Đây là điểm ăn điểm khi thuyết trình: hình trong paper vẽ GAP và GMP, tức gộp theo không gian; nhưng đọc code thì torch.mean và torch.max chạy theo dim bằng 1, tức gộp theo kênh — cho ra trọng số cấp pixel thật sự. Code khác hình, mình nêu rõ chỗ này.</div>
@@ -1516,27 +1559,7 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
       <div class="takeaway"><strong>Output:</strong> <code>up4 → up3 → up2 → up1</code>, rồi <code>Conv 1×1 (outc) + Sigmoid</code> → bản đồ xác suất <code>[B, n_classes, 224, 224]</code>.</div>
     </div>
     <div class="col-visual">
-      <svg class="svg-fig" viewBox="0 0 420 320" role="img" aria-label="UpblockAttention 3 bước">
-        <defs><marker id="ahdec" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L8 4.5 L0 9 z" fill="var(--orange)"/></marker></defs>
-        <rect class="s-box ink" x="30" y="24" width="150" height="52" rx="8"/>
-        <text class="s-lbl" x="105" y="44">x (tầng dưới)</text><text class="s-cap" x="105" y="62">14×14</text>
-        <path class="s-arr" style="marker-end:url(#ahdec)" d="M105 78 L105 108"/>
-        <text class="s-cap" x="150" y="94" text-anchor="start">↑2 Upsample</text>
-        <rect class="s-box o" x="240" y="24" width="150" height="52" rx="8"/>
-        <text class="s-lbl o" x="315" y="44">skip_x</text><text class="s-cap" x="315" y="62">PLAM → skip_x_att</text>
-        <path class="s-arr" style="marker-end:url(#ahdec)" d="M315 78 L315 130 L200 130"/>
-        <rect class="s-box" x="30" y="112" width="150" height="46" rx="8"/>
-        <text class="s-lbl" x="105" y="135">up</text>
-        <circle cx="215" cy="185" r="26" fill="oklch(67% 0.14 45 / .12)" stroke="var(--orange)" stroke-width="2"/>
-        <text class="s-cap" x="215" y="185" style="font-size:12px">concat</text>
-        <path class="s-arr" style="marker-end:url(#ahdec)" d="M105 160 L105 185 L187 185"/>
-        <path class="s-arr" style="marker-end:url(#ahdec)" d="M243 185 L300 185"/>
-        <rect class="s-box o" x="310" y="160" width="90" height="50" rx="8"/>
-        <text class="s-lbl o" x="355" y="185" style="font-size:13px">nConvs</text>
-        <path class="s-arr" style="marker-end:url(#ahdec)" d="M215 213 L215 250"/>
-        <rect class="s-box o" x="120" y="252" width="190" height="52" rx="8"/>
-        <text class="s-lbl o" x="215" y="272">Conv1×1 + Sigmoid</text><text class="s-cap" x="215" y="290">[B, n_cls, 224, 224]</text>
-      </svg>
+      <figure class="paper-figure" style="margin:0"><img src="figs/p24_img.png" alt="Code UpblockAttention khoanh đỏ kèm LViT init và thumbnail Figure 2" /></figure>
     </div>
   </div>
   <div class="stage-strip">Đây là khối giải mã UpblockAttention, phần bù cho slide PLAM. Ba bước: một, upsample đặc trưng tầng dưới lên gấp đôi. Hai, lọc skip-connection qua PLAM thành skip_x_att rồi concat với up theo chiều kênh. Ba, trộn qua hai khối Conv2d–BatchNorm–ReLU, giảm nửa số kênh. Lặp up4 xuống up1 để phục hồi độ phân giải từ 14×14 lên 224×224, cuối cùng Conv 1×1 và Sigmoid cho ra bản đồ xác suất [B, n_classes, 224, 224].</div>
@@ -1572,32 +1595,21 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
 </section>
 
 <!-- ============ 23 · CLASS IMBALANCE (Weighted Dice+BCE) ============ -->
-<section class="slide split cream-bg" id="slide-23" data-title="Mất cân bằng lớp" data-group="Loss" style="background-image:url('assets/bg-cream-1.png')">
+<section class="slide cream-bg" id="slide-23" data-title="Mất cân bằng lớp" data-group="Loss" style="background-image:url('assets/bg-cream-1.png')">
   <div class="wrap">
-    <div class="col-text">
-      <div class="slide-kicker">LOSS · CLASS IMBALANCE</div>
-      <h1>Tổn thương chỉ chiếm &lt;5% pixel — phải cân lại loss.</h1>
-      <p class="lede">Foreground (tổn thương) chỉ 1–5% pixel; background 95–99%. Loss kết hợp <span class="term">Weighted BCE</span> + <span class="term">Weighted Dice</span> để không bị nền lấn át.</p>
-      <div class="formula big" data-tex="\mathcal{L}_{\text{total}} = 0.5\,\mathcal{L}_{\text{Dice}} + 0.5\,\mathcal{L}_{\text{CE}}"></div>
-      <ul class="keypoints">
-        <li><strong>Weighted BCE</strong> — phạt nặng khi nhầm pixel tổn thương → ranh giới sắc.</li>
-        <li><strong>Weighted Dice</strong> — đo overlap <span class="katex-inline" data-tex="2\cdot\frac{|A\cap B|}{|A|+|B|}">2·giao/hợp</span>, miễn nhiễm với nền khổng lồ.</li>
-      </ul>
-    </div>
-    <div class="col-visual">
-      <svg class="svg-fig" viewBox="0 0 480 220" role="img" aria-label="Tỉ lệ background lớn so với lesion nhỏ trong ảnh y tế">
-        <!-- background portion ~95% -->
-        <rect class="s-box ink" x="30" y="70" width="380" height="60" rx="6"/>
-        <!-- lesion portion ~5% (right sliver) -->
-        <rect x="391" y="70.75" width="19" height="58.5" fill="var(--orange)" stroke="var(--orange)" stroke-width="1.5"/>
-        <text class="s-lbl" x="210" y="100">Background 95–99%</text>
-        <line class="s-arr" x1="400" y1="150" x2="400" y2="132" marker-end="url(#ah23)" stroke-width="2"/>
-        <defs><marker id="ah23" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--orange)"/></marker></defs>
-        <text class="s-lbl o" x="400" y="168">Lesion</text>
-        <text class="s-lbl o" x="400" y="186">1–5%</text>
-        <text class="s-cap" x="240" y="212">Weighted Dice + Weighted BCE</text>
-      </svg>
-    </div>
+    <div class="slide-kicker">LOSS · CLASS IMBALANCE</div>
+    <h1>The Loss: chống mất cân bằng Foreground / Background.</h1>
+    <h2 style="margin:18px 0 8px">The Reality of Medical Images</h2>
+    <ul class="keypoints">
+      <li><strong>Lesion (Foreground-1)</strong> — chỉ chiếm 1%–5% tổng số pixel.</li>
+      <li><strong>Healthy tissue (Background-0)</strong> — chiếm 95%–99% tổng số pixel.</li>
+    </ul>
+    <h2 style="margin:20px 0 8px">The Unique Combination in Code</h2>
+    <ul class="keypoints">
+      <li><strong>Weighted BCE</strong> — phạt nặng khi nhầm pixel lesion → ranh giới sắc, pixel-precise.</li>
+      <li><strong>Weighted Dice</strong> — đo overlap <span class="katex-inline" data-tex="\frac{2\cdot|A\cap B|}{|A|+|B|}">2·Intersection/Union</span> → bắt shape toàn cục, miễn nhiễm với vùng nền lớn.</li>
+    </ul>
+    <div class="formula big" data-tex="\mathcal{L}_{\text{total}} = 0.5\cdot\mathcal{L}_{\text{Dice}} + 0.5\cdot\mathcal{L}_{\text{CE}}"></div>
   </div>
   <div class="stage-strip">Vấn đề đặc thù ảnh y tế: tổn thương chỉ chiếm 1 đến 5 phần trăm pixel, còn lại 95-99% là nền. Nếu dùng loss thường mô hình chỉ cần đoán "tất cả là nền" đã đúng 95%. Nên LViT dùng tổ hợp: Weighted BCE phạt nặng khi nhầm pixel tổn thương, cho ranh giới sắc; Weighted Dice đo tỉ lệ overlap hai lần giao chia tổng, gần như miễn nhiễm với vùng nền khổng lồ. Tổng loss là 0.5 Dice cộng 0.5 CE.</div>
 </section>
@@ -1606,14 +1618,14 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
 <section class="slide split figure-wide cream-bg" id="slide-24" data-title="EPI — pseudo-label bằng EMA" data-group="Semi-supervised" style="background-image:url('assets/bg-cream-2.png')">
   <div class="wrap">
     <div class="col-text">
-      <div class="slide-kicker">EPI · EXPONENTIAL PSEUDO-LABEL ITERATION</div>
-      <h1>EPI: cập nhật pseudo-label mượt bằng <span class="u-orange">EMA</span>, β = 0.99.</h1>
-      <p class="lede">Với dữ liệu chưa nhãn, EPI tạo nhãn giả rồi cập nhật trung bình động — giữ 99% lịch sử ổn định, tránh nhãn nhiễu và sụp đổ đột ngột.</p>
+      <div class="slide-kicker">PILLAR 1 · EPI · EXPONENTIAL PSEUDO-LABEL ITERATION</div>
+      <h1>EPI: cập nhật pseudo-label qua <span class="u-orange">EMA</span>, β = 0.99.</h1>
+      <p class="lede">Pillar 1 — <strong>EPI (Exponential Pseudo-label Iteration)</strong>: với dữ liệu chưa nhãn, cập nhật nhãn giả qua trung bình động EMA, giữ 99% lịch sử ổn định để tránh sụp đổ đột ngột và nhãn nhiễu.</p>
       <div class="formula big" data-tex="P_t = \beta\,P_{t-1} + (1-\beta)\,\tilde{P}_t, \quad \beta = 0.99"></div>
       <p class="fnote">Giữ 99% lịch sử ổn định → pseudo-label không dao động mạnh giữa các vòng.</p>
     </div>
     <div class="col-visual">
-      <figure class="paper-figure"><img src="figs/fig3_epi_lv.png" alt="Fig 3 — EPI và LV Loss" /><figcaption>Fig. 3 — (a) EPI (EMA pseudo-label) &amp; (b) LV (Language-Vision) Loss</figcaption></figure>
+      <figure class="paper-figure" style="margin:0"><img src="figs/p26_img.png" alt="Fig 3 — chuỗi cập nhật EPI (EMA pseudo-label) và LV loss" /></figure>
     </div>
   </div>
   <div class="stage-strip">EPI là cơ chế bán giám sát để tận dụng ảnh chưa có nhãn. Ý tưởng: sinh nhãn giả rồi cập nhật nó bằng trung bình động EMA với beta 0.99 — nghĩa là mỗi vòng giữ lại 99% nhãn cũ ổn định, chỉ hé 1% cho dự đoán mới. Nhờ đó pseudo-label không nhảy loạn hay nhiễm nhiễu qua các epoch. Hình bên là Figure 3 của paper, phần a minh hoạ chuỗi cập nhật EMA.</div>
@@ -1622,9 +1634,9 @@ body.dark-ui .slide:not(.dark) .slide-num{ color:var(--mid-soft) }
 <!-- ============ 25 · LV LOSS (merged 25/26) ============ -->
 <section class="slide cream-bg" id="slide-25" data-title="LV Loss — contrastive text↔ảnh" data-group="Semi-supervised" style="background-image:url('assets/bg-cream-3.png')">
   <div class="wrap">
-    <div class="slide-kicker">LV LOSS · LANGUAGE-VISION</div>
-    <h1>LV Loss: dùng độ giống nhau của <span class="u-orange">text</span> để gợi vị trí cho ảnh chưa nhãn.</h1>
-    <p class="lede">Đo <span class="term">cosine similarity</span> giữa text của ảnh chưa-nhãn và ảnh đã-nhãn; text giống nhau → mượn mask làm <span class="term">contrastive label</span> tham chiếu.</p>
+    <div class="slide-kicker">PILLAR 2 · LV LOSS · CONTRASTIVE</div>
+    <h1>LV Loss (Contrastive): dùng độ giống của <span class="u-orange">text</span> để gợi vị trí cho ảnh chưa nhãn.</h1>
+    <p class="lede">Pillar 2 — <strong>LV Loss</strong>: dùng structured text similarity (<span class="term">Cosine Sim</span>) giữa ảnh unlabeled và labeled; text giống nhau → tìm <span class="term">Contrastive Label</span> (<code>mask_c</code>) làm tham chiếu.</p>
     <div class="formula big" data-tex="\mathcal{L}_{\text{unsup}} = \mathrm{WeightedDice} + \mathrm{WeightedBCE} + 0.1\cdot \mathcal{L}_{\text{LV}}"></div>
     <div class="takeaway"><strong>Vì sao chỉ dùng cho dữ liệu chưa nhãn?</strong> Contrastive label chỉ cho gợi ý vị trí thô. Dữ liệu đã có <span class="term">ground-truth</span> tuyệt đối rồi — thêm LV Loss chỉ đưa nhiễu vào. Nên LV Loss <em>chỉ</em> áp cho phần unlabeled.</div>
   </div>
